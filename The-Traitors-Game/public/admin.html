@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>The Traitors - Council Host Chamber</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: max(1.5rem, env(safe-area-inset-top)) 1rem max(2rem, env(safe-area-inset-bottom)) 1rem;
+      width: 100%;
+      position: relative;
+      z-index: 10;
+    }
+    .toolbar-btn {
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      border-radius: 4px;
+      cursor: pointer;
+      min-height: 42px;
+    }
+    .soundboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .mystery-scroll {
+      background: radial-gradient(circle at top left, rgba(35, 12, 12, 0.7), rgba(10, 3, 3, 0.95));
+      border: 1px solid rgba(197, 160, 89, 0.35);
+      border-left: 3px solid var(--accent-gold);
+      border-radius: 4px;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <!-- Minimalist Audio Toggle Button (SVG) -->
+  <button id="soundToggleBtn" class="sound-toggle-btn" title="Toggle Sound & Ambience" aria-label="Toggle Sound">
+    <svg id="soundIconOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </svg>
+    <svg id="soundIconOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line>
+      <line x1="17" y1="9" x2="23" y2="15"></line>
+    </svg>
+  </button>
+
+  <!-- Atmospheric Backgrounds -->
+  <div class="blood-orb orb-1"></div>
+  <div class="blood-orb orb-2"></div>
+  <div class="blood-orb orb-3"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+  <div class="fire-pit-bottom"></div>
+
+  <!-- PIN Authentication Wall -->
+  <div id="adminAuthWall" class="center-content" style="display: flex; position: relative; z-index: 10;">
+    <div class="glass-panel" style="max-width: 400px; text-align: center;">
+      <h1 class="title-glow" style="font-size: 2.2rem; margin-bottom: 0.2rem;">The Traitors</h1>
+      <p class="subtitle-flicker" style="margin-top: 0.5rem; margin-bottom: 1.5rem;">Council Chamber Master Access</p>
+
+      <form id="adminPinForm">
+        <input 
+          type="password" 
+          id="adminPinInput" 
+          class="input-field" 
+          placeholder="Enter Host PIN" 
+          autofocus 
+          required 
+          style="text-align: center; font-size: 1.5rem; letter-spacing: 4px;"
+        >
+        <button type="submit" class="btn btn-primary">Enter Chamber</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Host Dashboard -->
+  <div id="adminDashboard" class="admin-container" style="display: none;">
+    <!-- Top Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 1.8rem; border-bottom: 1px solid var(--panel-border); padding-bottom: 1.2rem;">
+      <div>
+        <h1 class="title-glow" style="font-size: clamp(1.8rem, 5vw, 2.5rem); margin: 0; text-align: left;">Host Chamber</h1>
+        <p style="color: var(--accent-gold); font-family: 'Inter'; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-top: 4px;">
+          The Council of Traitors & Faithful
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <button id="resetGameBtn" class="btn btn-danger toolbar-btn" style="width: auto;">
+          Reset Game
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Join Info Banner -->
+    <div class="glass-panel" style="margin-bottom: 1.8rem; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(20, 8, 8, 0.7);">
+      <div>
+        <span style="color: var(--accent-gold); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">
+          Player Join URL:
+        </span>
+        <span id="playerJoinUrl" style="color: #fff; font-family: monospace; font-size: 1.05rem; margin-left: 8px; user-select: all;">
+          http://localhost:3000/
+        </span>
+      </div>
+      <button id="copyJoinLinkBtn" class="btn btn-outline toolbar-btn" style="width: auto;">
+        Copy Link
+      </button>
+    </div>
+
+    <!-- Live Statistics Cards -->
+    <div class="admin-grid">
+      <div class="glass-panel stat-card">
+        <h3 style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Total Players</h3>
+        <div id="statTotal" class="stat-value" style="color: var(--fg);">0</div>
+      </div>
+      <div class="glass-panel stat-card">
+        <h3 style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Alive Players</h3>
+        <div id="statAlive" class="stat-value" style="color: var(--accent-green);">0</div>
+      </div>
+      <div class="glass-panel stat-card">
+        <h3 style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">Eliminated</h3>
+        <div id="statEliminated" class="stat-value" style="color: var(--text-muted);">0</div>
+      </div>
+      <div class="glass-panel stat-card" style="border: 1px solid var(--accent-red);">
+        <h3 style="color: #ff6666; font-size: 0.85rem; text-transform: uppercase;">Alive Traitors</h3>
+        <div id="statTraitors" class="stat-value" style="color: #ff4d4d;">0</div>
+      </div>
+      <div class="glass-panel stat-card" style="border: 1px solid var(--accent-blue);">
+        <h3 style="color: #7ba7cc; font-size: 0.85rem; text-transform: uppercase;">Alive Faithful</h3>
+        <div id="statInnocents" class="stat-value" style="color: #8ae39d;">0</div>
+      </div>
+    </div>
+
+    <!-- MYSTERY SOUNDBOARD (Broadcast Live Audio FX to All Phones) -->
+    <div class="glass-panel" style="margin-bottom: 1.8rem; border-color: rgba(255, 100, 0, 0.4);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 8px;">
+        <h2 style="font-size: 1.25rem; color: #ff9944; margin: 0;">Mystery Soundboard</h2>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Broadcasts audio live to all players</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">
+        Tap any button to trigger dramatic atmospheric sounds across every connected phone in the room:
+      </p>
+
+      <div class="soundboard-grid">
+        <button class="soundboard-btn" data-sound="bell">Death Bell</button>
+        <button class="soundboard-btn" data-sound="gong">Council Gong</button>
+        <button class="soundboard-btn" data-sound="thunder">Thunder</button>
+        <button class="soundboard-btn" data-sound="flame">Flame Whoosh</button>
+        <button class="soundboard-btn" data-sound="dagger">Blade Strike</button>
+        <button class="soundboard-btn" data-sound="heartbeat">Heartbeat</button>
+        <button class="soundboard-btn" data-sound="elimination">Elimination Toll</button>
+        <button class="soundboard-btn" data-sound="fanfare">Victory Chime</button>
+      </div>
+    </div>
+
+    <!-- Synchronized Castle Timer -->
+    <div class="glass-panel" style="margin-bottom: 1.8rem;">
+      <h2 style="font-size: 1.25rem; margin-bottom: 0.8rem;">Synchronized Castle Timer</h2>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+        <button class="btn btn-outline timer-preset-btn toolbar-btn" data-sec="60" style="width: auto;">1 Min</button>
+        <button class="btn btn-outline timer-preset-btn toolbar-btn" data-sec="180" style="width: auto;">3 Min</button>
+        <button class="btn btn-outline timer-preset-btn toolbar-btn" data-sec="300" style="width: auto;">5 Min</button>
+        <button class="btn btn-outline timer-preset-btn toolbar-btn" data-sec="600" style="width: auto;">10 Min</button>
+        <button id="customTimerBtn" class="btn btn-outline toolbar-btn" style="width: auto;">Custom</button>
+        <button id="stopTimerBtn" class="btn btn-danger toolbar-btn" style="width: auto;">Stop Timer</button>
+        <span id="adminTimerDisplay" style="font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--accent-gold); margin-left: auto;">
+          Inactive
+        </span>
+      </div>
+    </div>
+
+    <!-- Game Phase Progression -->
+    <div class="glass-panel" style="margin-bottom: 1.8rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+        <h2 style="font-size: 1.25rem; margin: 0;">
+          Game Phase (Current: <span id="currentRoundLabel" style="color: var(--accent-gold);">Lobby</span>)
+        </h2>
+        <span id="currentPhaseLabel" class="role-badge" style="background: rgba(197, 160, 89, 0.2); color: var(--accent-gold);">IDLE</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+        <button id="startTrialBtn" class="btn btn-primary" style="padding: 10px; font-size: 0.85rem;">
+          1. The Relic Trial (Prelude)
+        </button>
+        <button id="startRound1Btn" class="btn btn-primary" style="padding: 10px; font-size: 0.85rem;">
+          2. Round 1 (Reveal Roles)
+        </button>
+        <button id="startRound2Btn" class="btn btn-primary" style="padding: 10px; font-size: 0.85rem;">
+          3. Round 2 (Groups of 15)
+        </button>
+        <button id="startRound3Btn" class="btn btn-primary" style="padding: 10px; font-size: 0.85rem;">
+          4. Round 3 (Trust / Betray)
+        </button>
+        <button id="startRound4Btn" class="btn btn-primary" style="padding: 10px; font-size: 0.85rem;">
+          5. Round 4 (Final Showdown)
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Event Controllers -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 1.8rem;">
+      <!-- Voting Control Card -->
+      <div class="glass-panel">
+        <h2 style="font-size: 1.2rem; color: #ff6666; margin-bottom: 0.8rem;">Round Table Banishment</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+          Open voting on players' phones to banish a suspect.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button id="openVotingBtn" class="btn btn-primary">Start Council Vote</button>
+          <button id="revealVotesBtn" class="btn btn-gold" style="display: none;">Reveal Votes & Tally</button>
+          <button id="executeBanishmentBtn" class="btn btn-danger" style="display: none;">Confirm Banishment</button>
+          <button id="closeVotingBtn" class="btn btn-outline" style="display: none;">Cancel / Close Vote</button>
+        </div>
+        <div id="votingLiveStatus" style="margin-top: 1rem; font-size: 0.9rem; color: var(--accent-gold);"></div>
+      </div>
+
+      <!-- Night Phase Murder Control Card -->
+      <div class="glass-panel">
+        <h2 style="font-size: 1.2rem; color: #ff3333; margin-bottom: 0.8rem;">Night Murder Phase</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+          Faithful sleep. Traitors vote secretly in their turret.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button id="startNightBtn" class="btn btn-danger">Initiate Night Phase</button>
+          <button id="executeNightBtn" class="btn btn-danger" style="display: none;">Execute Traitor Murder</button>
+          <button id="cancelNightBtn" class="btn btn-outline" style="display: none;">End Night Without Murder</button>
+        </div>
+        <div id="nightLiveStatus" style="margin-top: 1rem; font-size: 0.9rem; color: #ff9999;"></div>
+      </div>
+    </div>
+
+    <!-- Squads & Clues Manager -->
+    <div class="glass-panel" style="margin-bottom: 1.8rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+        <h2 style="font-size: 1.25rem; margin: 0;">Squads & Relic Clues</h2>
+        <button id="autoAssignGroupsBtn" class="btn btn-gold toolbar-btn" style="width: auto;">
+          Auto-Assign Players into Squads
+        </button>
+      </div>
+
+      <div id="cluesListContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;"></div>
+    </div>
+
+    <!-- Player Management -->
+    <div class="glass-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+        <h2 style="font-size: 1.25rem; margin: 0;">Player Management</h2>
+        <input 
+          type="text" 
+          id="playerSearchInput" 
+          class="input-field" 
+          placeholder="Filter players by number..." 
+          style="max-width: 250px; margin-bottom: 0; min-height: 44px; padding: 8px 12px; font-size: 0.9rem;"
+        >
+      </div>
+
+      <h3 style="font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--accent-green); margin-bottom: 8px;">
+        Alive Players (<span id="aliveCountText">0</span>)
+      </h3>
+      <div id="alivePlayerList" class="player-list" style="margin-top: 0; margin-bottom: 1.5rem;"></div>
+
+      <h3 style="font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--accent-red); margin-bottom: 8px;">
+        Eliminated Players (<span id="eliminatedCountText">0</span>)
+      </h3>
+      <div id="eliminatedPlayerList" class="player-list" style="margin-top: 0; opacity: 0.75;"></div>
+    </div>
+  </div>
+
+  <script src="/audio.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>

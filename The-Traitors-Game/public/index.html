@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <title>The Traitors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Minimalist Audio Toggle Button (SVG) -->
+  <button id="soundToggleBtn" class="sound-toggle-btn" title="Toggle Sound & Ambience" aria-label="Toggle Sound">
+    <svg id="soundIconOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </svg>
+    <svg id="soundIconOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line>
+      <line x1="17" y1="9" x2="23" y2="15"></line>
+    </svg>
+  </button>
+
+  <!-- Atmospheric Backgrounds -->
+  <div class="blood-orb orb-1"></div>
+  <div class="blood-orb orb-2"></div>
+  <div class="blood-orb orb-3"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <!-- Castle Torches & Fire Pit -->
+  <div class="castle-torch torch-left">
+    <div class="torch-flame"></div>
+    <div class="torch-base"></div>
+  </div>
+  <div class="castle-torch torch-right">
+    <div class="torch-flame"></div>
+    <div class="torch-base"></div>
+  </div>
+  <div class="fire-pit-bottom"></div>
+  <div class="rising-embers" id="emberContainer"></div>
+
+  <div class="app-container">
+    <!-- Live Synced Timer Banner -->
+    <div id="timerContainer" style="display: none; text-align: center;">
+      <div id="timerBanner" class="live-timer-banner">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span id="timerLabel" style="font-family: 'Cinzel', serif; font-size: 0.9rem; text-transform: uppercase;">Timer</span>
+        <span id="timerRemaining" class="timer-digits">00:00</span>
+      </div>
+    </div>
+
+    <!-- MAIN DYNAMIC CONTENT CONTAINER -->
+    <main id="appRoot" class="center-content">
+      <!-- Screen 1: Registration Form (ONLY PLAYER NUMBER) -->
+      <div id="screenRegistration" style="width: 100%; max-width: 400px;">
+        <h1 class="title-glow">The Traitors</h1>
+        <p class="subtitle-flicker">Trust No One</p>
+
+        <div class="glass-panel">
+          <h2>Join The Game</h2>
+          <form id="regForm">
+            <input 
+              type="text" 
+              id="regNumber" 
+              class="input-field" 
+              placeholder="Enter your player number" 
+              inputmode="numeric" 
+              pattern="[0-9]*" 
+              autofocus 
+              required
+            >
+            <button type="submit" class="btn btn-primary">
+              Register
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Screen 2: Waiting Room / Lobby -->
+      <div id="screenLobby" style="display: none; width: 100%; max-width: 440px;">
+        <h1 class="title-glow" style="font-size: clamp(2rem, 6vw, 2.8rem);">
+          Welcome, <span id="lobbyPlayerName">Player</span>
+        </h1>
+        <p class="subtitle-flicker">The Game Is About To Begin</p>
+
+        <div class="glass-panel">
+          <div class="waiting-spinner"></div>
+          <p style="color: var(--text-muted); letter-spacing: 1px; margin-top: 1rem; font-size: 0.95rem;">
+            Waiting for the host to start...
+          </p>
+        </div>
+      </div>
+
+      <!-- Screen 3: The Relic Trial (Prelude) -->
+      <div id="screenTrial" style="display: none; width: 100%; max-width: 500px;">
+        <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-gold); font-family: 'Inter'; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.6rem;">
+          <span style="width: 8px; height: 8px; background: var(--accent-gold); border-radius: 50%; box-shadow: 0 0 8px var(--accent-gold);"></span>
+          LIVE — The Relic Trial
+        </div>
+        <h2 style="font-family: 'Cinzel', serif; font-size: clamp(1.5rem, 5vw, 2rem); color: #fff; margin-bottom: 1.2rem;">
+          Mission: Relic Piece Retrieval
+        </h2>
+
+        <div class="glass-panel" style="text-align: left;">
+          <div style="background: rgba(0, 0, 0, 0.65); border-left: 3px solid var(--accent-gold); padding: 1.2rem; border-radius: 0 4px 4px 0; margin-bottom: 1.4rem;">
+            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-gold); font-weight: 700; margin-bottom: 6px;">
+              Squad Clue (Group <span id="trialGroupNum">?</span>)
+            </div>
+            <div id="trialClueText" style="font-style: italic; color: #fff; font-size: 1.15rem; line-height: 1.45;">
+              "Search the estate grounds diligently, find your missing piece, and return to the council chamber."
+            </div>
+          </div>
+
+          <button id="relicFoundBtn" class="btn btn-gold" style="margin-bottom: 1.4rem;">
+            Relic Piece Recovered
+          </button>
+
+          <div style="margin-bottom: 1.4rem;">
+            <p style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px;">
+              Your Squad Members:
+            </p>
+            <div id="trialSquadList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+          </div>
+
+          <div style="padding: 1rem; background: rgba(0, 0, 0, 0.5); border: 1px dashed rgba(197, 160, 89, 0.35); border-radius: 4px; text-align: center;">
+            <div style="color: var(--accent-gold); font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px;">
+              Roles Concealed
+            </div>
+            <p style="font-size: 0.95rem; color: var(--fg); margin: 0; line-height: 1.4;">
+              The Traitors have already been chosen in secret among you. Work together with your squad. All true identities will be unveiled in Round 1.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 4: Main Game Round (Round 1, 2, 4) -->
+      <div id="screenRound" style="display: none; width: 100%; max-width: 500px;">
+        <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-red); font-family: 'Inter'; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.4rem;">
+          <span class="live-dot"></span>
+          <span id="roundHeaderLabel">LIVE — Round 1</span>
+        </div>
+        <h2 id="roundHeaderTitle" style="font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 6vw, 2.4rem); margin-bottom: 0.8rem;">Round 1</h2>
+
+        <div class="glass-panel">
+          <!-- 3D Flip Card for Secret Role Reveal -->
+          <div class="role-card-flip">
+            <div class="role-card-inner">
+              <p style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 0.4rem;">
+                Your Secret Role
+              </p>
+              <div id="roleRevealBox" class="role-reveal role-faithful">
+                <div id="roleSvgContainer" style="display: flex; justify-content: center; margin-bottom: 0.5rem;"></div>
+                <h1 id="roleTitle">Faithful</h1>
+                <div style="display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 10px;">
+                  <span id="roleBadge" class="role-badge faithful">Faithful</span>
+                  <span id="shieldIndicator" class="shield-badge" style="display: none;">SHIELDED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p id="traitorNote" style="display: none; color: #ff4d4d; font-weight: bold; margin-top: 1rem; font-size: 0.95rem;">
+            You are a Traitor. Trust no one. Murder with caution.
+          </p>
+
+          <!-- Group & Squad Info -->
+          <div id="roundGroupContainer" style="margin-top: 1.5rem; text-align: left;">
+            <hr style="border: none; border-top: 1px solid var(--panel-border); margin: 1.2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--accent-gold);">
+                Group <span id="roundGroupNumber">1</span>
+              </span>
+              <span id="squadMemberCount" style="font-size: 0.85rem; color: var(--text-muted);">0 members</span>
+            </div>
+            <div id="roundSquadMembers" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 5: Round Table Banishment (Voting Chamber) -->
+      <div id="screenVoting" style="display: none; width: 100%; max-width: 560px;">
+        <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-red); font-family: 'Inter'; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.4rem;">
+          <span class="live-dot"></span>
+          LIVE — The Round Table
+        </div>
+        <h2 style="font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 6vw, 2.4rem); color: #ff4d4d; margin-bottom: 0.4rem;">
+          Banishment Vote
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">
+          Cast your secret vote against the suspect you wish to banish.
+        </p>
+
+        <div class="glass-panel">
+          <div id="votingOpenSection">
+            <div class="suspect-grid" id="suspectGrid"></div>
+
+            <button id="castVoteBtn" class="btn btn-danger" disabled style="margin-top: 1rem;">
+              Select A Player To Vote
+            </button>
+            <p id="voteConfirmedText" style="display: none; color: var(--accent-gold); margin-top: 1rem; font-weight: bold;">
+              Your secret vote has been recorded.
+            </p>
+          </div>
+
+          <!-- Revealed Voting Tally -->
+          <div id="votingRevealedSection" style="display: none; text-align: left; margin-top: 1rem;">
+            <h3 style="font-family: 'Cinzel', serif; color: var(--accent-gold); text-align: center; margin-bottom: 1.2rem;">
+              Council Votes Unveiled
+            </h3>
+            <div id="votingTallyBars" style="display: flex; flex-direction: column; gap: 10px;"></div>
+
+            <div id="banishedPlayerBox" style="margin-top: 1.5rem; padding: 1.2rem; background: rgba(139, 0, 0, 0.35); border: 2px solid var(--accent-red); border-radius: 6px; text-align: center;">
+              <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: #ff6666;">Banished By The Council</span>
+              <h2 id="banishedPlayerName" style="color: #fff; font-family: 'Cinzel', serif; font-size: 2rem; margin: 6px 0;">Player</h2>
+              <p id="banishedRoleReveal" style="font-size: 1.1rem; font-style: italic; color: var(--accent-gold); margin: 0;"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 6: Night Murder Phase -->
+      <div id="screenNight" style="display: none; width: 100%; max-width: 500px;">
+        <div id="nightFaithfulView" class="glass-panel" style="display: none; text-align: center; padding: 40px 20px;">
+          <div style="display: flex; justify-content: center; margin-bottom: 1.2rem;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </div>
+          <h2 style="font-family: 'Cinzel', serif; color: var(--accent-gold); margin-bottom: 1rem;">Night Has Fallen</h2>
+          <p style="font-size: 1.15rem; line-height: 1.5; color: var(--fg); margin-bottom: 1rem;">
+            The castle doors are locked. Darkness blankets the grounds.
+          </p>
+          <p style="color: var(--text-muted); font-style: italic; font-size: 0.95rem;">
+            Go to sleep, Faithful. Pray that you awaken at breakfast...
+          </p>
+        </div>
+
+        <div id="nightTraitorView" class="glass-panel traitor-sanctuary" style="display: none;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0.8rem;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff3333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m14.5 17.5-5-5"></path>
+              <path d="m4 4 7 7"></path>
+              <path d="m16 2 6 6-7 7-6-6Z"></path>
+            </svg>
+            <h2 style="font-family: 'Cinzel', serif; color: #ff3333; margin: 0; letter-spacing: 2px;">Traitor's Turret</h2>
+          </div>
+          <p style="color: #ff9999; font-size: 0.9rem; text-align: center; margin-bottom: 1rem;">
+            Confer in secret. Select which Faithful shall not survive tonight.
+          </p>
+
+          <div class="night-chat-box" id="nightChatBox"></div>
+          <form id="nightChatForm" style="display: flex; gap: 8px; margin-bottom: 1.2rem;">
+            <input type="text" id="nightChatInput" class="input-field" placeholder="Whisper in secret..." style="margin-bottom: 0;" maxlength="150">
+            <button type="submit" class="btn btn-primary" style="width: auto; padding: 0 18px; min-height: 52px;">Send</button>
+          </form>
+
+          <h3 style="font-family: 'Cinzel', serif; font-size: 1.05rem; color: var(--accent-gold); margin-bottom: 10px; text-align: left;">
+            Select Victim:
+          </h3>
+          <div class="suspect-grid" id="murderVictimGrid" style="max-height: 220px;"></div>
+          <button id="confirmMurderBtn" class="btn btn-danger" disabled style="margin-top: 10px;">
+            Select Murder Target
+          </button>
+        </div>
+      </div>
+
+      <!-- Screen 7: Round 3 Dilemma (Trust or Betray) -->
+      <div id="screenDilemma" style="display: none; width: 100%; max-width: 500px;">
+        <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-gold); font-family: 'Inter'; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.4rem;">
+          <span class="live-dot"></span>
+          Round 3 Dilemma
+        </div>
+        <h2 style="font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 6vw, 2.4rem); color: #fff; margin-bottom: 0.4rem;">
+          Trust or Betray
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.2rem;">
+          You are paired with <strong id="dilemmaPartnerName" style="color: var(--accent-gold);">Partner</strong>. Make your secret choice.
+        </p>
+
+        <div class="glass-panel">
+          <div class="dilemma-options">
+            <div id="choiceTrust" class="dilemma-card trust">
+              <h3 style="font-family: 'Cinzel', serif; color: var(--accent-green); margin-bottom: 6px; font-size: 1.3rem;">TRUST</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Share the outcome</p>
+            </div>
+            <div id="choiceBetray" class="dilemma-card betray">
+              <h3 style="font-family: 'Cinzel', serif; color: var(--accent-red); margin-bottom: 6px; font-size: 1.3rem;">BETRAY</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Claim sole victory</p>
+            </div>
+          </div>
+
+          <p id="dilemmaStatusText" style="color: var(--text-muted); font-style: italic; font-size: 0.85rem; line-height: 1.4;">
+            Both Trust = Both Survive | One Betrays = Betrayer Wins | Both Betray = Both Face Trial
+          </p>
+
+          <div id="dilemmaRevealedBox" style="display: none; margin-top: 1.5rem; padding: 1.2rem; background: rgba(0,0,0,0.6); border: 1px solid var(--accent-gold); border-radius: 4px;">
+            <h3 style="font-family: 'Cinzel', serif; color: var(--accent-gold); margin-bottom: 8px;">The Outcome</h3>
+            <p id="dilemmaOutcomeText" style="font-size: 1.05rem; line-height: 1.4;"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 8: Eliminated Card -->
+      <div id="screenEliminated" style="display: none; width: 100%; max-width: 460px;">
+        <div class="glass-panel eliminated-card" style="text-align: center; padding: 36px 20px;">
+          <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="12" r="1.5"></circle>
+              <circle cx="15" cy="12" r="1.5"></circle>
+              <path d="M8 20v2h8v-2"></path>
+              <path d="m12.5 17-.5-1-.5 1h1z"></path>
+              <path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"></path>
+            </svg>
+          </div>
+          <h1 class="title-glow" style="font-size: clamp(2rem, 7vw, 3rem); color: #ff3333; margin-bottom: 0.4rem;">
+            ELIMINATED
+          </h1>
+          <p style="color: #ff9999; font-size: 1.05rem; margin-bottom: 1.4rem;">
+            You have been banished or murdered in the shadows.
+          </p>
+          <div style="padding: 10px; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: var(--text-muted); font-size: 0.85rem;">
+            Spectator Mode: You may continue watching the remaining trials unfold.
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 9: Victory / Game Over -->
+      <div id="screenVictory" style="display: none; width: 100%; max-width: 500px;">
+        <h1 class="title-glow" style="color: var(--accent-gold); font-size: clamp(2.4rem, 7vw, 3.2rem);">
+          GAME OVER
+        </h1>
+        <div class="glass-panel" style="text-align: center; position: relative; overflow: hidden; padding: 36px 20px;">
+          <div class="victory-sparkles" id="victorySparkles"></div>
+          <div style="display: flex; justify-content: center; margin-bottom: 0.8rem;">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path>
+            </svg>
+          </div>
+          <h2 id="victoryHeader" style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 0.4rem;">
+            The Winner Is
+          </h2>
+          <h1 id="winnerName" class="winner-glow">Winner</h1>
+          <p id="winnerSubtext" style="color: var(--fg); font-size: 1.05rem; margin-top: 0.8rem;">
+            Outlasted everyone and claimed victory!
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/audio.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
